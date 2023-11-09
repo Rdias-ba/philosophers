@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 01:22:46 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/09 16:41:43 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/09 17:57:51 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	*philo_life(void *void_philo)
 	philo = (t_philo *)void_philo;
 	data = philo->data;
 	if (philo->id % 2)
-		usleep(15000);
+		smart_sleep(data->t_eat + 1, data);
 	while (!(data->died))
 	{
 		philo_eats(philo);
@@ -93,7 +93,6 @@ void	death_checker(t_data *data, t_philo *philo)
 				data->died = 1;
 			}
 			pthread_mutex_unlock(&(data->eating));
-			usleep(100);
 		}
 		if (data->died)
 			break ;
@@ -118,7 +117,9 @@ int	philo_thread(t_data *data)
 	{
 		if (pthread_create(&(phi[i].thread_id), NULL, philo_life, &(phi[i])))
 			return (1);
+		pthread_mutex_lock(&(data->eating));
 		phi[i].t_last_meal = timestamp();
+		pthread_mutex_unlock(&(data->eating));
 		i++;
 	}
 	death_checker(data, data->philo);

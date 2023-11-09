@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 00:35:20 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/09 04:52:41 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/09 18:00:12 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	smart_sleep(long long time, t_data *data)
 	{
 		if (time_diff(i, timestamp()) >= time)
 			break ;
-		usleep(50);
+		usleep(10);
 	}
 }
 
