@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 01:22:46 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/10 00:57:16 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/10 16:16:57 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	*philo_life(void *void_philo)
 	philo = (t_philo *)void_philo;
 	data = philo->data;
 	if (philo->id % 2)
-		smart_sleep(data->t_eat + 1, data);
+		smart_sleep(data->t_eat, data);
 	while (1)
 	{
 		if (!(pthread_mutex_lock(&(data->dead))) && data->died)

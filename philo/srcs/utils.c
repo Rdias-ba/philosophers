@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 00:35:20 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/10 00:59:56 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/10 16:14:21 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	smart_sleep(long long time, t_data *data)
 	{
 		pthread_mutex_unlock(&(data->eating));
 		while ((timestamp() - i) < time)
-			usleep(10);
+			usleep(100);
 	}
 	else
 		pthread_mutex_unlock(&(data->eating));
@@ -64,11 +64,7 @@ void	print_message(t_data *data, int id, char *str)
 	pthread_mutex_lock(&(data->print));
 	pthread_mutex_lock(&(data->dead));
 	if (!(data->died))
-	{
-		printf("%lli ", timestamp() - data->start);
-		printf("%i ", id + 1);
-		printf("%s\n", str);
-	}
+		printf("%lli %i %s\n", timestamp() - data->start, id + 1, str);
 	pthread_mutex_unlock(&(data->print));
 	pthread_mutex_unlock(&(data->dead));
 	return ;
