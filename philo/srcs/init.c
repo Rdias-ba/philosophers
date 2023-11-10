@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 23:58:26 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/09 17:41:22 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:30:14 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,12 @@ int	init_mutex(t_data *data)
 	if (pthread_mutex_init(&(data->print), NULL))
 		return (1);
 	if (pthread_mutex_init(&(data->eating), NULL))
+		return (1);
+	if (pthread_mutex_init(&(data->dead), NULL))
+		return (1);
+	if (pthread_mutex_init(&(data->ate), NULL))
+		return (1);
+	if (pthread_mutex_init(&(data->has_eaten), NULL))
 		return (1);
 	return (0);
 }

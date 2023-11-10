@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 23:26:16 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/09 17:57:29 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:56:42 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,9 @@ typedef struct s_data
 	int					all_ate;
 	int					error_id;
 	long long			start;
+	pthread_mutex_t		dead;
+	pthread_mutex_t		ate;
+	pthread_mutex_t		has_eaten;
 	pthread_mutex_t		eating;
 	pthread_mutex_t		forks[250];
 	pthread_mutex_t		print;
@@ -52,11 +55,13 @@ int						print_error(char *str);
 int						error_handler(int error_id);
 
 int						init(t_data *data, char **av);
+void					sleep_think(t_data *data, t_philo *philo);
+void					all_ate(int i, t_data *data);
+void					is_dead(t_data *data);
 
 int						ft_atoi(const char *str);
 void					print_message(t_data *data, int id, char *str);
 long long				timestamp(void);
-long long				time_diff(long long start, long long curr);
 void					smart_sleep(long long time, t_data *data);
 
 int						philo_thread(t_data *data);

@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 00:35:20 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/09 18:00:12 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:59:56 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,27 +43,26 @@ long long	timestamp(void)
 	return ((t.tv_sec * 1000) + (t.tv_usec / 1000));
 }
 
-long long	time_diff(long long past, long long pres)
-{
-	return (pres - past);
-}
-
 void	smart_sleep(long long time, t_data *data)
 {
 	long long	i;
 
 	i = timestamp();
-	while (!(data->died))
+	pthread_mutex_lock(&(data->eating));
+	if (!(data->died))
 	{
-		if (time_diff(i, timestamp()) >= time)
-			break ;
-		usleep(10);
+		pthread_mutex_unlock(&(data->eating));
+		while ((timestamp() - i) < time)
+			usleep(10);
 	}
+	else
+		pthread_mutex_unlock(&(data->eating));
 }
 
 void	print_message(t_data *data, int id, char *str)
 {
 	pthread_mutex_lock(&(data->print));
+	pthread_mutex_lock(&(data->dead));
 	if (!(data->died))
 	{
 		printf("%lli ", timestamp() - data->start);
@@ -71,5 +70,6 @@ void	print_message(t_data *data, int id, char *str)
 		printf("%s\n", str);
 	}
 	pthread_mutex_unlock(&(data->print));
+	pthread_mutex_unlock(&(data->dead));
 	return ;
 }

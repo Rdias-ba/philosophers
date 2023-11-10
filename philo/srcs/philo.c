@@ -6,7 +6,7 @@
 /*   By: rdias-ba <rdias-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 01:22:46 by rdias-ba          #+#    #+#             */
-/*   Updated: 2023/11/09 17:57:51 by rdias-ba         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:57:16 by rdias-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,47 +19,51 @@ void	philo_eats(t_philo *philo)
 	data = philo->data;
 	pthread_mutex_lock(&(data->forks[philo->left_id]));
 	print_message(data, philo->id, "has taken a fork");
-	if (data->nb_philo > 1)
-	{
-		pthread_mutex_lock(&(data->forks[philo->right_id]));
-		print_message(data, philo->id, "has taken a fork");
-	}
-	else
+	if (data->nb_philo == 1)
 	{
 		pthread_mutex_unlock(&(data->forks[philo->left_id]));
-		smart_sleep(data->t_death * 2, data);
+		smart_sleep(data->t_death + 10, data);
 		return ;
 	}
-	print_message(data, philo->id, "is eating");
+	pthread_mutex_lock(&(data->forks[philo->right_id]));
+	print_message(data, philo->id, "has taken a fork");
 	pthread_mutex_lock(&(data->eating));
+	print_message(data, philo->id, "is eating");
 	philo->t_last_meal = timestamp();
 	pthread_mutex_unlock(&(data->eating));
 	smart_sleep(data->t_eat, data);
+	pthread_mutex_lock(&(data->has_eaten));
 	(philo->has_eaten)++;
+	pthread_mutex_unlock(&(data->has_eaten));
 	pthread_mutex_unlock(&(data->forks[philo->left_id]));
 	pthread_mutex_unlock(&(data->forks[philo->right_id]));
 }
 
 void	*philo_life(void *void_philo)
 {
-	int				i;
 	t_philo			*philo;
 	t_data			*data;
 
-	i = 0;
 	philo = (t_philo *)void_philo;
 	data = philo->data;
 	if (philo->id % 2)
 		smart_sleep(data->t_eat + 1, data);
-	while (!(data->died))
+	while (1)
 	{
-		philo_eats(philo);
-		if (data->all_ate)
+		if (!(pthread_mutex_lock(&(data->dead))) && data->died)
+		{
+			pthread_mutex_unlock(&(data->dead));
 			break ;
-		print_message(data, philo->id, "is sleeping");
-		smart_sleep(data->t_sleep, data);
-		print_message(data, philo->id, "is thinking");
-		i++;
+		}
+		pthread_mutex_unlock(&(data->dead));
+		philo_eats(philo);
+		if (!(pthread_mutex_lock(&(data->ate))) && data->all_ate)
+		{
+			pthread_mutex_unlock(&(data->ate));
+			break ;
+		}
+		pthread_mutex_unlock(&(data->ate));
+		sleep_think(data, philo);
 	}
 	return (NULL);
 }
@@ -75,6 +79,10 @@ void	exit_thread(t_data *data, t_philo *philos)
 	while (++i < data->nb_philo)
 		pthread_mutex_destroy(&(data->forks[i]));
 	pthread_mutex_destroy(&(data->print));
+	pthread_mutex_destroy(&(data->dead));
+	pthread_mutex_destroy(&(data->eating));
+	pthread_mutex_destroy(&(data->ate));
+	pthread_mutex_destroy(&(data->has_eaten));
 }
 
 void	death_checker(t_data *data, t_philo *philo)
@@ -87,21 +95,22 @@ void	death_checker(t_data *data, t_philo *philo)
 		while (++i < data->nb_philo && !(data->died))
 		{
 			pthread_mutex_lock(&(data->eating));
-			if (time_diff(philo[i].t_last_meal, timestamp()) >= data->t_death)
+			if ((timestamp() - philo[i].t_last_meal) >= data->t_death)
 			{
 				print_message(data, i, "died");
-				data->died = 1;
+				is_dead(data);
 			}
 			pthread_mutex_unlock(&(data->eating));
 		}
 		if (data->died)
 			break ;
 		i = 0;
+		pthread_mutex_lock(&(data->has_eaten));
 		while (data->nb_eat != -1 && i < data->nb_philo \
 				&& philo[i].has_eaten >= data->nb_eat)
 			i++;
-		if (i == data->nb_philo)
-			data->all_ate = 1;
+		pthread_mutex_unlock(&(data->has_eaten));
+		all_ate(i, data);
 	}
 }
 
